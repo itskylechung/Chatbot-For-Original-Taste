@@ -1,0 +1,15 @@
+[tool.poetry]
+name = "langgraph-chatbot"
+version = "0.1.0"
+description = ""
+authors = ["itskylechung <makbokkpro2033@outlook.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+langgraph = "^0.2.74"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
