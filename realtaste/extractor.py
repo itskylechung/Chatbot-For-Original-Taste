@@ -1,44 +1,35 @@
-import os
-
-from dotenv import load_dotenv
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_openai import ChatOpenAI
 
+from realtaste import llm
 from realtaste.reference_examples import messages
-from .schema import Data
+from realtaste.schema import ChooseBento, Data
 
-load_dotenv()
-
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-llm = ChatOpenAI(
-    model="gpt-4o-mini",
-    temperature=0,
-    max_tokens=None,
-    timeout=None,
-    api_key=OPENAI_API_KEY,
-)
+# structured_llm = llm.with_structured_output(schema=ChooseBento)
 
 
 prompt_template = ChatPromptTemplate.from_messages(
     [
         (
             "system",
-            "You are an expert extraction algorithm. "
-            "Only extract relevant information from the text. "
-            "If you do not know the value of an attribute asked to extract, "
-            "return null for the attribute's value.",
+            "You are an expert in structured data extraction. "
+            "Extract only relevant information from user input.  "
+            "If an attribute's value cannot be determined, return null for that attribute.  "
+            "Do not infer or assume missing details.",
         ),
+        # Please see the how-to about improving performance with
+        # reference examples.
         MessagesPlaceholder("examples"),
         ("human", "{text}"),
     ]
 )
-structured_llm = llm.with_structured_output(schema=Data)
 
-prompt = prompt_template.invoke(
-    {
-        "examples": messages,
-        "text": "我想要吃超值三味便當，少飯，多菜",
-    }
+runnable = prompt_template | llm.with_structured_output(
+    schema=Data,
+    method="function_calling",
+    include_raw=False,
 )
-bentos_msg = structured_llm.invoke(prompt)
-print(bentos_msg)
+text = "我要一個香酥炸雞腿便當，飯正常，醬汁另外放。"
+
+print(runnable.invoke({"text": text, "examples": messages}))
+# prompt = prompt_template.invoke({"text": text})
+# structured_llm.invoke(prompt)
