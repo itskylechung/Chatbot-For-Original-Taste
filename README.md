@@ -5,6 +5,7 @@
 This is a chatbot system designed to extract relevant information from users based on their queries. The chatbot processes natural language input, retrieves key details, and provides structured responses.
 
 ## Features
+- **Few-Shots**: Few shots examples in order to enhance the selection
 - **Memory**: Retains conversation history to enhance user interactions.
 - **Item Availability Verification**: Checks whether an item is in stock.
 - **Total Estimation**: Calculates the estimated total cost of selected items.
