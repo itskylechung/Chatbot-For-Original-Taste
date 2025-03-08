@@ -168,7 +168,9 @@ examples = [
 ]
 
 
-messages = []
+reference_examples = []
 
 for txt, tool_call in examples:
-    messages.extend(tool_example_to_messages(txt, [tool_call]))
+    reference_examples.extend(tool_example_to_messages(txt, [tool_call]))
+
+print(reference_examples)

@@ -1,15 +1,16 @@
-from langchain_core.messages import HumanMessage, SystemMessage
+from langchain_core.messages import SystemMessage
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.graph import START, MessagesState, StateGraph
 
 from realtaste import llm
-from realtaste.schema import BentoConfig
+from realtaste.reference_examples import reference_examples
+from realtaste.schema import Data
 
 
 # Inherit 'messages' key from MessagesState, which is a list of chat messages
 class AgentState(MessagesState):
     # Final structured response from the agent
-    final_response: BentoConfig
+    final_response: Data
 
 
 workflow = StateGraph(state_schema=AgentState)
@@ -25,7 +26,8 @@ def call_model(state: AgentState):
         "Do not infer or assume missing details."
     )
     messages = [SystemMessage(content=system_prompt)] + state["messages"]
-    model_with_structured_output = llm.with_structured_output(BentoConfig)
+    # + reference_examples (few shots made by pydantic)
+    model_with_structured_output = llm.with_structured_output(Data)
     response = model_with_structured_output.invoke(messages)
 
     # We return a list, because this will get added to the existing list
@@ -37,13 +39,5 @@ workflow.add_node("model", call_model)
 workflow.add_edge(START, "model")
 
 # Add simple in-memory checkpointer
-memory = MemorySaver()
-app = workflow.compile(checkpointer=memory)
-
-text = "請來一個日式蒲燒鰻魚便當，飯多一點，醬汁少一點。"
-
-result = app.invoke(
-    input={"messages": [HumanMessage(content=text)]},
-    config={"configurable": {"thread_id": "1"}},
-)
-print(result)
+# memory = MemorySaver()
+graph = workflow.compile()
