@@ -1,5 +1,11 @@
-from langgraph.store.memory import InMemoryStore
+import os
+
+from dotenv import load_dotenv
 from langchain_openai import OpenAIEmbeddings
+from langgraph.store.memory import InMemoryStore
+
+load_dotenv()
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 in_memory_store = InMemoryStore(
     index={
